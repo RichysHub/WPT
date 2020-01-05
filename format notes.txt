@@ -1,0 +1,83 @@
+8f 81 01	Magic (according to arbitrary net source)
+
+07
+00
+00
+42
+52
+
+1e	Start of Linecount Block
+11
+30	Total lines * 8dec
+02	Highbyte of ^
+30	Top Margin lines * 8 dec
+00	Highbyte of ^
+00	Top Space lines * 8 dec
+00	Highbyte of ^
+00	Bottom Space lines * 8 dec
+00	Highbyte of ^
+30	Bottom Margin lines * 8 dec
+00	Highbyte of ^
+ff
+05
+13
+11
+1e	End of Linecount Block
+
+####	Header and/or Footer blocks
+
+98	Seems to proceed text
+0d	* Modified by presence of tabs: 0d + 2(number of tabs)
+78	Left Margin low byte (12 dec * position)
+00	Left Margin high byte
+84	Right Margin low byte
+03	Right Margin high byte
+00
+00
+06
+02	Pitch Size: 02:10 pitch, 04:12 pitch, 08:15 pitch
+	First value flips to 8 if Text Justification is enabled
+01	Line Spacing 01:1.0 LS, 02:1.5 LS, 04:2.0 LS
+
+////	Tab blocks
+
+0d	* End of tab blocks marker. Matches above *'d value. something ~ byte count between
+
+98	Seems to proceed text
+41	Ascii A (start of body text)
+de	File end
+
+
+
+####	Block for Header / Footer
+
+1d	Footer marker, Header uses 1c
+18	Correlated with header size, 14 + num characters
+00	Header size high byte?
+98	Seems to proceed text
+0d	Block end marker?
+78	Left Margin low byte (12 dec * position)
+00	Highbyte of ^
+84	Right Margin low byte
+03	Highbyte of ^
+00
+00
+00
+02	Looks like pitch size?
+01	Line spacing?
+0d	Block end marker?
+98	Seems to proceed text
+46	F
+4f	O
+4f	O
+54	T
+02	Newline, denoting end of header. Not counted as a characters for size value
+18	Correlated with header size, 14 + num characters
+00	Header size high byte?
+1d	Footer marker Header uses 1c
+
+
+////	Tab block
+f0	Position * 12 dec
+00	Highbyte of ^
+
