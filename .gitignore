@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.exts/__pycache__/
+
+# Sphinx documentation
+docs/build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# JetBrains
+.idea
+
+# Working directories
+Spreadsheet Program/
+WPT format testing files/
