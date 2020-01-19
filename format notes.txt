@@ -74,7 +74,7 @@ de	File end
     4f	O
     54	T
 
-    02	Newline, denoting end of header. Not counted as a characters for size value
+    02	Newline, denoting end of header
 
 18	Size of Footeer Block
 00	Highbyte of ^ ?
