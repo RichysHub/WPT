@@ -16,11 +16,15 @@ class Block:
                                           file.read(self.size_bytes))
         self.data_bytes_remaining = self.total_bytes - 2 - (2 * self.size_bytes)
 
-    def close_init(self, file):
+        self.unpack(file)
+
         reported_total_bytes, = struct.unpack("{}{}".format(BYTE_ORDER, self.size_structs[self.size_bytes]),
                                               file.read(self.size_bytes))
         assert(reported_total_bytes == self.total_bytes)
         assert(file.read(1) == self.identifier)
+
+    def unpack(self, file):
+        pass
 
 
 class Linecount(Block):
@@ -34,9 +38,7 @@ class Linecount(Block):
     bottom_margin = "H"
     unknown = b"\xFF\x05\x13"
 
-    def __init__(self, file):
-        super().__init__(file)
-
+    def unpack(self, file):
         self.total_lines, = struct.unpack("{}{}".format(BYTE_ORDER, self.total_lines), file.read(2))
         self.top_margin, = struct.unpack("{}{}".format(BYTE_ORDER, self.top_margin), file.read(2))
         self.top_space, = struct.unpack("{}{}".format(BYTE_ORDER, self.top_space), file.read(2))
@@ -46,8 +48,6 @@ class Linecount(Block):
         read_unknown = file.read(3)
         if read_unknown != self.unknown:
             print("Format mistake in", self.__class__, "expected unknown of", self.unknown, "read", read_unknown)
-
-        self.close_init(file)
 
 
 class HeaderMargin(Block):
@@ -61,9 +61,7 @@ class HeaderMargin(Block):
     pitch_size = "N"
     line_spacing = "c"
 
-    def __init__(self, file):
-        super().__init__(file)
-
+    def unpack(self, file):
         self.left_margin, = struct.unpack("{}{}".format(BYTE_ORDER, self.left_margin), file.read(2))
         self.right_margin, = struct.unpack("{}{}".format(BYTE_ORDER, self.right_margin), file.read(2))
         read_unknown = file.read(3)
@@ -71,8 +69,6 @@ class HeaderMargin(Block):
             print("Format mistake in", self.__class__, "expected unknown of", self.unknown, "read", read_unknown)
         just_pitch, = file.read(1)
         self.line_spacing, = struct.unpack("{}{}".format(BYTE_ORDER, self.line_spacing), file.read(1))
-
-        self.close_init(file)
 
 
 class Header(Block):
@@ -83,16 +79,12 @@ class Header(Block):
     text = "*s"
     newline = b"\x02"
 
-    def __init__(self, file):
-        super().__init__(file)
-
+    def unpack(self, file):
         self.margins = self.margins(file)
         self.data_bytes_remaining -= self.margins.total_bytes  # TODO: tracking this is hard to keep up to date
         text_bytes = self.data_bytes_remaining - 1  # newline will take a byte
         self.text, = struct.unpack("{}{}s".format(BYTE_ORDER, text_bytes), file.read(text_bytes))
         assert(file.read(1) == self.newline)
-
-        self.close_init(file)
 
 
 class Footer(Block):
@@ -103,16 +95,12 @@ class Footer(Block):
     text = "*s"
     newline = b"\x02"
 
-    def __init__(self, file):
-        super().__init__(file)
-
+    def unpack(self, file):
         self.margins = self.margins(file)
         self.data_bytes_remaining -= self.margins.total_bytes
         text_bytes = self.data_bytes_remaining - 1  # newline will take a byte
         self.text, = struct.unpack("{}{}s".format(BYTE_ORDER, text_bytes), file.read(text_bytes))
         assert(file.read(1) == self.newline)
-
-        self.close_init(file)
 
 
 class Margin(Block):
@@ -128,9 +116,7 @@ class Margin(Block):
     line_spacing = "c"
     tab_positions = "*H"
 
-    def __init__(self, file):
-        super().__init__(file)
-
+    def unpack(self, file):
         self.left_margin, = struct.unpack("{}{}".format(BYTE_ORDER, self.left_margin), file.read(2))
         self.right_margin, = struct.unpack("{}{}".format(BYTE_ORDER, self.right_margin), file.read(2))
         read_unknown = file.read(3)
@@ -146,8 +132,6 @@ class Margin(Block):
         for tab in range(number_tabs):
             tab_position, = struct.unpack("{}{}".format(BYTE_ORDER, "H"), file.read(2))
             self.tab_positions.append(tab_position)
-
-        self.close_init(file)
 
 
 class WPT(Block):
